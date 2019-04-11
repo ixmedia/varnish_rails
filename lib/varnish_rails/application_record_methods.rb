@@ -27,6 +27,11 @@ module ApplicationRecordMethods
     # == Scopes ===============================================================
 
     # == Instance Methods =====================================================
+    def can_purge
+      return VarnishRails.configuration.included_models.include?(self.class.name) if VarnishRails.configuration.included_models.present?
+      return !VarnishRails.configuration.excluded_models.include?(self.class.name) if VarnishRails.configuration.excluded_models.present?
+      return true
+    end
 
     def varnish_configure
       self.class.varnish_purge_on_commit = true if self.class.varnish_purge_on_commit.nil?
@@ -51,11 +56,11 @@ module ApplicationRecordMethods
     private
 
     def purge_cache_by_varnish_class_name
-      self.class.purge_cache_by_varnish_class_name
+      self.class.purge_cache_by_varnish_class_name if can_purge
     end
 
     def purge_cache_by_varnish_id
-      VarnishRailsService::purge_xkey_cache(varnish_id, varnish_class_name_fk) if (varnish_id.present? && !/.+::Translation/.match(self.class.name) && self.class.varnish_purge_on_commit)
+      VarnishRailsService::purge_xkey_cache(varnish_id, varnish_class_name_fk) if can_purge && (varnish_id.present? && !/.+::Translation/.match(self.class.name) && self.class.varnish_purge_on_commit)
     end
 
     # == Class Methods ========================================================
@@ -77,7 +82,7 @@ module ApplicationRecordMethods
     end
 
     def self.purge_cache_by_varnish_class_name
-      VarnishRailsService::purge_xkey_cache(self::varnish_class_name, self::varnish_class_name_fk) if self::varnish_purge_on_commit
+      VarnishRailsService::purge_xkey_cache(self::varnish_class_name, self::varnish_class_name_fk) if can_purge && self::varnish_purge_on_commit
     end
 
     def self.varnish_encode(value)

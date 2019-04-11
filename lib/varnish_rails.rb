@@ -26,7 +26,7 @@ module VarnishRails
   end
 
   class Configuration
-    attr_accessor :enable, :url, :maxage_key, :maxage_value, :xkey_length, :header_xkey_purge, :header_x_ban_url, :print_requests
+    attr_accessor :enable, :url, :maxage_key, :maxage_value, :xkey_length, :header_xkey_purge, :header_x_ban_url, :print_requests, :included_models, :excluded_models
 
     def initialize
       @enable             = false
@@ -37,6 +37,8 @@ module VarnishRails
       @header_xkey_purge  = 'xkey-purge'
       @header_x_ban_url   = 'x-ban-url'
       @print_requests     = false
+      @included_models    = nil
+      @excluded_models    = nil
     end
   end
   # CONFIGURATION -----------------------------------------------------------------

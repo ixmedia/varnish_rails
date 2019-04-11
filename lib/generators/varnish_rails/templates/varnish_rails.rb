@@ -23,6 +23,12 @@ VarnishRails.configure do |config|
 
   # Print requests
   config.print_requests     = ENV['VARNISH_PRINT_REQUESTS'] == "true" ? true : false
+
+  # Includes the access to purge to the following models (empty means all models access)
+  config.included_models    = []
+
+  # Excludes the access to purge to the following models (empty means all models access)
+  config.excluded_models    = []
 end
 
 # Flush the Varnish cache when the app starts
