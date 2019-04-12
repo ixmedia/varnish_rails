@@ -56,14 +56,20 @@ module ApplicationRecordMethods
     private
 
     def purge_cache_by_varnish_class_name
-      self.class.purge_cache_by_varnish_class_name if can_purge
+      self.class.purge_cache_by_varnish_class_name
     end
 
     def purge_cache_by_varnish_id
-      VarnishRailsService::purge_xkey_cache(varnish_id, varnish_class_name_fk) if can_purge && (varnish_id.present? && !/.+::Translation/.match(self.class.name) && self.class.varnish_purge_on_commit)
+      VarnishRailsService::purge_xkey_cache(varnish_id, varnish_class_name_fk) if (can_purge && (varnish_id.present? && !/.+::Translation/.match(self.class.name) && self.class.varnish_purge_on_commit))
     end
 
     # == Class Methods ========================================================
+
+    def self.can_purge
+      return VarnishRails.configuration.included_models.include?(self::name) if VarnishRails.configuration.included_models.present?
+      return !VarnishRails.configuration.excluded_models.include?(self::name) if VarnishRails.configuration.excluded_models.present?
+      return true
+    end
 
     def self.varnish_class_name(namespace='')
       class_name = namespace.present? ? [self.name, namespace].join('-') : self.name
@@ -82,7 +88,8 @@ module ApplicationRecordMethods
     end
 
     def self.purge_cache_by_varnish_class_name
-      VarnishRailsService::purge_xkey_cache(self::varnish_class_name, self::varnish_class_name_fk) if can_purge && self::varnish_purge_on_commit
+      binding.pry
+      VarnishRailsService::purge_xkey_cache(self::varnish_class_name, self::varnish_class_name_fk) if (self::can_purge && self::varnish_purge_on_commit)
     end
 
     def self.varnish_encode(value)
