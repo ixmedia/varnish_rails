@@ -1,9 +1,15 @@
 module ActionControllerMethods
+  def set_varnish_true
+    @varnish_headers_are_set = true
+  end
 
   private
 
   def set_varnish_headers(max_age_in_seconds=VarnishRails.configuration.maxage_value)
-    response.headers['Cache-Control'] = "public, #{VarnishRails.configuration.maxage_key}=#{max_age_in_seconds}" if VarnishRails.configuration.enable
+    if VarnishRails.configuration.enable
+      response.headers['Cache-Control'] = "public, #{VarnishRails.configuration.maxage_key}=#{max_age_in_seconds}"
+      set_varnish_true
+    end
   end
 
   def add_to_varnish_xkey_header(*collections)
