@@ -28,6 +28,19 @@ $ rails generate varnish_rails:install
 
 3. For models that don't have to be purged automatically, add the following line `is_updated_via_import` to the model. You can then call `MyModel::purge_cache_by_varnish_class_name` to purge all cached pages that use this model.
 
+4. You can use Varnish ESI in your layout:
+
+```rhtml
+<% if @varnish_headers_are_set %>
+  <esi:include src="/includes/header"/>
+  <esi:remove>
+    <%= render "/shared/header" %>
+  </esi:remove>
+<% else %>
+  <%= render "/shared/header" %>
+<% end %>
+```
+
 ## Contributing
 - Mario Bouchard
 
